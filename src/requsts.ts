@@ -1,19 +1,20 @@
 import https, { RequestOptions } from 'https';
 import { IncomingMessage } from 'http';
 
-async function post(urlString: string): Promise<any> {
+async function post<BodyType extends object>(urlString: string, options = {}, body?: BodyType): Promise<any> {
     const url: URL = new URL(urlString);
 
-    const options = {
+    const defaultOptions = {
+        ...options,
         hostname: url.hostname,
         path: url.pathname,
         method: 'POST'
     };
 
-    return makeRequest(options);
+    return makeRequest(defaultOptions, body || {});
 }
 
-async function makeRequest(options: RequestOptions) {
+async function makeRequest(options: RequestOptions, requestBody: object) {
     const body: Buffer[] = [];
     return new Promise((resolve, reject) => {
         const onData = (chunk: Buffer) => {
@@ -22,12 +23,14 @@ async function makeRequest(options: RequestOptions) {
 
         const onEnd = () => resolve(JSON.parse(Buffer.concat(body).toString()))
 
-        https.request(options, (res: IncomingMessage) => {
+        const req = https.request(options, (res: IncomingMessage) => {
             res.on('data', onData);
             res.on('end', onEnd)
         })
             .on('error', reject)
-            .end();
+
+        req.write(JSON.stringify(requestBody));
+        req.end();
     });
 }
 
