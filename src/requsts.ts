@@ -1,31 +1,33 @@
-import https from 'https';
+import https, { RequestOptions } from 'https';
+import { IncomingMessage } from 'http';
 
-async function post(_url: string): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
-        const url: URL = new URL(_url);
+async function post(urlString: string): Promise<any> {
+    const url: URL = new URL(urlString);
 
-        const options = {
-            hostname: url.hostname,
-            path: url.pathname,
-            method: 'POST'
-        };
+    const options = {
+        hostname: url.hostname,
+        path: url.pathname,
+        method: 'POST'
+    };
 
-        let data: string = '';
-        const req = https.request(options, (res) => {
-            res.on('data', (_data) => {
-                data += _data;
-            });
-        });
+    return makeRequest(options);
+}
 
-        req.on('finish', () => {
-            return resolve(data);
+async function makeRequest(options: RequestOptions) {
+    const body: Buffer[] = [];
+    return new Promise((resolve, reject) => {
+        const onData = (chunk: Buffer) => {
+            body.push(chunk);
+        }
+
+        const onEnd = () => resolve(JSON.parse(Buffer.concat(body).toString()))
+
+        https.request(options, (res: IncomingMessage) => {
+            res.on('data', onData);
+            res.on('end', onEnd)
         })
-
-        req.on('error', (error) => {
-            return reject(error);
-        });
-
-        req.end();
+            .on('error', reject)
+            .end();
     });
 }
 
