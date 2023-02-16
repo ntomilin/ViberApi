@@ -32,7 +32,11 @@ const ErrorCodes: Record<Enumerate<25> | 'other', string> = {
 
 type EventTypes = 'subscribed' | 'unsubscribed' | 'conversation_started' | 'delivered' | 'failed' | 'message' | 'seen';
 
+type MessageType = 'text' | 'picture' | 'video' | 'file' | 'location' | 'contact' | 'sticker' | 'carousel content' | 'url';
+
+
 export {
     ErrorCodes,
     EventTypes,
+    MessageType,
 }
