@@ -1,4 +1,4 @@
-import { post } from './requsts';
+import { post } from './requests';
 import { WebhookResponse } from './types/Responses';
 import { WebhookRequest } from './types/Requests';
 
