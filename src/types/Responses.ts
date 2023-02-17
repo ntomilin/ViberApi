@@ -1,4 +1,4 @@
-import { ErrorCodes, EventTypes, MessageType } from './Constants';
+import { ErrorCodes, EventTypes } from './Constants';
 import { Enumerate } from './UtilTypes';
 
 interface SharedResponseFields {
