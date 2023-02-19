@@ -1,5 +1,5 @@
 import { EventTypes } from './Constants';
-import { Image, MessageRequestCommon } from './Objects';
+import { Image, MessageRequestShared } from './Objects';
 
 export interface WebhookRequest {
     url: string;
@@ -8,12 +8,12 @@ export interface WebhookRequest {
     send_photo: boolean;
 }
 
-export interface SendTextRequest extends MessageRequestCommon {
+export interface SendTextRequest extends MessageRequestShared {
     type: 'text';
     text: string;
 }
 
-export interface SendPictureRequest extends MessageRequestCommon {
+export interface SendPictureRequest extends MessageRequestShared {
     type: 'picture';
     text: string;
     media: Image;

@@ -1,7 +1,8 @@
 import { HEX, ImageMime, StringUrl, Range, HTMLString } from './UtilTypes';
-import { MessageType } from './Constants';
+import { EventTypes, MessageType } from './Constants';
+import { SendMessageRequest } from './Requests';
 
-export interface MessageRequestCommon {
+export interface MessageRequestShared {
     receiver: string;
     type: MessageType;
     sender: {
@@ -14,6 +15,15 @@ export interface MessageRequestCommon {
 }
 
 export type Image = `${StringUrl}${ImageMime}`;
+
+export type UserProfile = {
+    id: string;
+    name: string;
+    avatar: StringUrl;
+    country: string;
+    language: string;
+    api_version: number;
+}
 
 export interface Keyboard {
     Buttons: Button[];
@@ -49,4 +59,34 @@ interface Button {
 
 interface Broadcasts {
     // TODO: finish
+}
+
+interface EventShared {
+    event: EventTypes;
+    timestamp: number;
+    message_token: number;
+}
+
+export interface SubscribedEvent extends EventShared {
+    event: 'subscribed';
+    user: UserProfile;
+}
+
+export interface UnsubscribeEvent extends EventShared {
+    event: 'unsubscribed';
+    user_id: string;
+}
+
+export interface ConversationStartedEvent extends EventShared {
+    event: 'conversation_started';
+    type: 'open';
+    context: string;
+    user: UserProfile;
+    subscribed: boolean;
+}
+
+export interface MessageEvent extends EventShared {
+    event: 'message';
+    sender: UserProfile;
+    message: SendMessageRequest;
 }

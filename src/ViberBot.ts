@@ -2,6 +2,7 @@ import { post } from './requests';
 import { SendMessageResponse, WebhookResponse } from './types/Responses';
 import { SendMessageRequest, WebhookRequest } from './types/Requests';
 
+// TODO: sending a welcome message (before user subscribed: https://developers.viber.com/docs/api/rest-bot-api/#sending-a-welcome-message)
 class ViberBot {
     private readonly URL: string = 'https://chatapi.viber.com/pa';
 
