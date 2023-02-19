@@ -1,7 +1,6 @@
 import { post } from './requests';
-import { BroadcastResponse, MessageResponse, WebhookResponse } from './types/Responses';
+import { BroadcastResponse, GetBotInfoResponse, MessageResponse, WebhookResponse } from './types/Responses';
 import { BroadcastRequest, MessageRequest, WebhookRequest } from './types/Requests';
-import { MessageRequestShared } from './types/Objects';
 
 // TODO: sending a welcome message (before user subscribed: https://developers.viber.com/docs/api/rest-bot-api/#sending-a-welcome-message)
 class ViberBot {
@@ -50,6 +49,14 @@ class ViberBot {
                 ...this.getAuthorization(),
             }
         }, body)
+    }
+
+    public async getBotInfo(): Promise<GetBotInfoResponse> {
+        return post(`${this.URL}/get_account_info`, {
+            headers: {
+                ...this.getAuthorization(),
+            }
+        }, {});
     }
 }
 
