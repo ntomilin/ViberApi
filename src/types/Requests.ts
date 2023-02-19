@@ -1,4 +1,5 @@
-import { EventTypes, MessageType } from './Constants';
+import { EventTypes } from './Constants';
+import { Image, MessageRequestCommon } from './Objects';
 
 export interface WebhookRequest {
     url: string;
@@ -7,13 +8,16 @@ export interface WebhookRequest {
     send_photo: boolean;
 }
 
-export interface SendMessageRequest {
-    receiver: string;
-    type: MessageType;
-    sender: {
-        name: string;
-        avatar?: string;
-        tracking_data?: string;
-        min_api_version?: string;
-    }
+export interface SendTextRequest extends MessageRequestCommon {
+    type: 'text';
+    text: string;
 }
+
+export interface SendPictureRequest extends MessageRequestCommon {
+    type: 'picture';
+    text: string;
+    media: Image;
+    thumbnail?: Image;
+}
+
+export type SendMessageRequest = SendTextRequest | SendPictureRequest;
