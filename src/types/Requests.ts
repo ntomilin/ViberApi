@@ -1,6 +1,6 @@
 import { EventTypes } from './Constants';
-import { Image, MessageRequestShared } from './Objects';
-import { StringUrl } from './UtilTypes';
+import { Button, Image, MessageRequestShared } from './Objects';
+import { HEX, StringUrl, Range } from './UtilTypes';
 
 export interface WebhookRequest {
     url: string;
@@ -63,5 +63,18 @@ export interface StickerRequest extends MessageRequestShared {
     sticker_id: number;
 }
 
+export interface RichMediaRequest {
+    receiver: string;
+    type: 'rich_media';
+    min_api_version: number; // 7
+    rich_media: {
+        Type: 'rich_media';
+        ButtonsGroupColumns: Range<1, 7>;// 6;
+        ButtonsGroupRows: Range<1, 8>; // 7
+        BgColor: HEX;
+        Buttons: Button[];
+    }
+}
+
 export type MessageRequest = TextRequest | PictureRequest | VideoRequest | FileRequest |
-    ContactRequest | LocationRequest | UrlRequest | StickerRequest;
+    ContactRequest | LocationRequest | UrlRequest | StickerRequest | RichMediaRequest;

@@ -38,7 +38,7 @@ export interface Keyboard {
     FavoritesMetadata?: {}; // TODO: describe: https://developers.viber.com/docs/tools/keyboards/#favoritesMetadata
 }
 
-interface Button {
+export interface Button {
     Text?: string | HTMLString;
     Rows?: Range<1, 7>; // [1-2] / [1-7 for Rich Media]
     Columns?: Range<1, 7>; // [6]
