@@ -1,6 +1,6 @@
 import { HEX, ImageMime, StringUrl, Range, HTMLString } from './UtilTypes';
 import { EventTypes, MessageType } from './Constants';
-import { SendMessageRequest } from './Requests';
+import { MessageRequest } from './Requests';
 
 export interface MessageRequestShared {
     receiver: string;
@@ -88,5 +88,5 @@ export interface ConversationStartedEvent extends EventShared {
 export interface MessageEvent extends EventShared {
     event: 'message';
     sender: UserProfile;
-    message: SendMessageRequest;
+    message: MessageRequest;
 }
