@@ -9,6 +9,7 @@ export interface WebhookRequest {
     send_photo: boolean;
 }
 
+
 export interface TextRequest extends MessageRequestShared {
     type: 'text';
     text: string;
@@ -63,6 +64,7 @@ export interface StickerRequest extends MessageRequestShared {
     sticker_id: number;
 }
 
+
 export interface RichMediaRequest {
     receiver: string;
     type: 'rich_media';
@@ -73,8 +75,14 @@ export interface RichMediaRequest {
         ButtonsGroupRows: Range<1, 8>; // 7
         BgColor: HEX;
         Buttons: Button[];
-    }
+    };
 }
+
 
 export type MessageRequest = TextRequest | PictureRequest | VideoRequest | FileRequest |
     ContactRequest | LocationRequest | UrlRequest | StickerRequest | RichMediaRequest;
+
+
+export type BroadcastRequest<T extends MessageRequest> = T & {
+    broadcast_list: string[];
+}
