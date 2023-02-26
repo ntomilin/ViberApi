@@ -11,7 +11,7 @@ import express from 'express';
 
 const app = express();
 import bodyParser from 'body-parser';
-import { TextBody } from './types/Requests';
+import { LocationBody, TextBody, UrlBody } from './types/Requests';
 
 app.listen(3000, () => {
     bot.setWebhook('https://3362-212-55-73-151.eu.ngrok.io/vb/wh')
@@ -23,7 +23,7 @@ app.listen(3000, () => {
 
 app.post('/vb/wh', [ bodyParser.json() ], async (req: any, res: any) => {
     if (req.body.event === 'conversation_started') {
-        return bot.sendWelcomeMessage({
+        return bot.sendWelcomeMessage<TextBody>({
             type: 'text',
             text: 'Hi!'
         }, req, res);

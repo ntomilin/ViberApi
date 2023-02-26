@@ -51,7 +51,6 @@ class ViberBot {
         }, {});
     }
 
-
     private buildMessage<T extends MessageBody>(body: T): T {
         return {
             sender: {
@@ -62,13 +61,12 @@ class ViberBot {
         };
     }
 
-
     public async sendMessage<T extends Message>(body: T): Promise<MessageResponse> {
         let parsedBody =
             body.type === 'rich_media' ? (body as RichMedia) :
                 this.buildMessage(body) as MessageBody;
 
-        return post<T>(`${ this.URL }/send_message`, {
+        return post<typeof parsedBody>(`${ this.URL }/send_message`, {
             headers: {
                 ...this.getAuthorization(),
             }
@@ -76,14 +74,14 @@ class ViberBot {
     }
 
     public async broadcast<T extends Broadcast<Message>>(body: Broadcast<T>): Promise<BroadcastResponse> {
-        return post<Broadcast<T>>(`${ this.URL }/broadcast_message`, {
+        return post<T>(`${ this.URL }/broadcast_message`, {
             headers: {
                 ...this.getAuthorization(),
             }
         }, body);
     }
 
-    public welcomeMessageMiddleware<T extends Message>(message: Partial<T>) {
+    public welcomeMessageMiddleware<T extends Message>(message: Omit<T, 'receiver'>): Function {
         return (req: any, res: any, next: any) => {
             if (req?.body?.event === 'conversation_started') {
                 this.sendWelcomeMessage(message, req, res);
@@ -92,7 +90,7 @@ class ViberBot {
         };
     }
 
-    public sendWelcomeMessage<T extends Message>(message: Partial<T>, req: any, res: any) {
+    public sendWelcomeMessage<T extends Message>(message: Omit<T, 'receiver'>, req: any, res: any): void {
         return res.send({
             sender: {
                 name: req.body.user.name,

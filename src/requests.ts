@@ -1,7 +1,7 @@
 import https, { RequestOptions } from 'https';
 import { IncomingMessage } from 'http';
 
-async function post<T extends object>(urlString: string, options = {}, body?: T): Promise<any> {
+async function post<T extends object>(urlString: string, options = {}, body: T): Promise<any> {
     const url: URL = new URL(urlString);
 
     const defaultOptions = {
@@ -21,10 +21,7 @@ async function makeRequest(options: RequestOptions, requestBody: object) {
             body.push(chunk);
         }
 
-        const onEnd = () => {
-            console.log(body.toString());
-            resolve(JSON.parse(Buffer.concat(body).toString()));
-        }
+        const onEnd = () => resolve(JSON.parse(Buffer.concat(body).toString()));
 
         const req = https.request(options, (res: IncomingMessage) => {
             res.on('data', onData);
