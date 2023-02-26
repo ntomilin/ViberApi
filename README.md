@@ -48,7 +48,7 @@ app.post('/vb/wh', async (req: any, res: any) => {
     
     if (req.body.event === 'message') {
         await bot.sendMessage<TextBody>({
-            receiver: req.body.message.receiver,
+            receiver: req.body.receiver,
             type: 'text',
             text: 'asd'
         });
