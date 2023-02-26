@@ -11,30 +11,47 @@ import express from 'express';
 
 const app = express();
 import bodyParser from 'body-parser';
-import { LocationBody, TextBody, UrlBody } from './types/Requests';
+import { TextBody } from './types/Requests';
 
 app.listen(3000, () => {
-    bot.setWebhook('https://3362-212-55-73-151.eu.ngrok.io/vb/wh')
+    bot.setWebhook('https://9724-212-55-73-151.eu.ngrok.io/vb/wh')
         .then((data: WebhookResponse) => {
             // console.log(data);
         })
         .catch(console.error);
 });
 
-app.post('/vb/wh', [ bodyParser.json() ], async (req: any, res: any) => {
-    if (req.body.event === 'conversation_started') {
-        return bot.sendWelcomeMessage<TextBody>({
-            type: 'text',
-            text: 'Hi!'
-        }, req, res);
-    }
-
-    if (req.body.event === 'message') {
-        await bot.sendMessage<TextBody>({
-            receiver: req.body.message.receiver,
+/*bot.on('message', async (req) => {
+    await bot.sendMessage<TextBody>({
+            receiver: req.body.sender.id,
             type: 'text',
             text: 'asd'
         });
-        return res.send();
+});*/
+
+
+const mw = bot.welcomeMessageMiddleware<TextBody>({
+    type: 'text',
+    text: 'heh!'
+});
+
+app.post('/vb/wh', [ bodyParser.json(), mw ], async (req: any, res: any) => {
+    res.send();
+
+    // if (req.body.event === 'conversation_started') {
+    //     return bot.sendWelcomeMessage<TextBody>({
+    //         type: 'text',
+    //         text: 'Hi!'
+    //     }, req, res);
+    // }
+    //
+    if (req.body.event === 'message') {
+        await bot.sendMessage<TextBody>({
+            receiver: req.body.sender.id,
+            type: 'text',
+            text: 'asd'
+        });
+        return;
     }
 });
+

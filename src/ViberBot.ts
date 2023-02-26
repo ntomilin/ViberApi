@@ -13,7 +13,7 @@ class ViberBot {
     private readonly image: StringUrl;
     private readonly token: string;
 
-    private readonly handlers: Map<EventTypes, (req: any, res: any) => Promise<void>> = new Map();
+    private readonly handlers: Map<EventTypes, (req: any) => Promise<void>> = new Map();
 
     constructor(config: ViberBotOptions) {
         this.name = config.name;
@@ -84,7 +84,7 @@ class ViberBot {
         }, body);
     }
 
-    public welcomeMessageMiddleware<T extends Message>(message: Omit<T, 'receiver'>): Function {
+    public welcomeMessageMiddleware<T extends Message>(message: Omit<T, 'receiver'>) {
         return (req: any, res: any, next: any) => {
             if (req?.body?.event === 'conversation_started') {
                 this.sendWelcomeMessage(message, req, res);
@@ -102,20 +102,25 @@ class ViberBot {
         });
     }
 
-    public on(event: EventTypes, handler: (req: any, res: any) => Promise<void>) {
+    public on(event: EventTypes, handler: (req: any) => Promise<void>) {
         this.handlers.set(event, handler);
     }
 
-    public async middleware(req: any, res: any) {
-        const { type } = req.body.message;
+    public middleware = async (req: any, res: any) => {
+        if (req.body.event !== 'webhook') {
+            const { event } = req.body;
 
-        const handler = this.handlers.get(type);
+            const handler = this.handlers.get(event);
 
-        if (!handler) {
-            throw new Error(`No handler provided for type ${ type }`);
+            if (!handler) {
+                throw new Error(`No handler provided for type ${ event }`);
+            }
+
+            res.send();
+            await handler(req);
+        } else {
+            return res.send();
         }
-
-        await handler(req, res);
     }
 }
 
