@@ -3,6 +3,7 @@ import { BroadcastResponse, GetBotInfoResponse, MessageResponse, WebhookResponse
 import { Broadcast, Message, MessageBody, RichMedia, WebhookRequest } from './types/Requests';
 import { SetWebhookOptions, ViberBotOptions } from './types/Objects';
 import { StringUrl } from './types/UtilTypes';
+import { EventTypes } from './types/Constants';
 
 class ViberBot {
     private readonly URL: string = 'https://chatapi.viber.com/pa';
@@ -11,6 +12,8 @@ class ViberBot {
     private readonly name: string;
     private readonly image: StringUrl;
     private readonly token: string;
+
+    private readonly handlers: Map<EventTypes, (req: any, res: any) => Promise<void>> = new Map();
 
     constructor(config: ViberBotOptions) {
         this.name = config.name;
@@ -97,6 +100,22 @@ class ViberBot {
             },
             ...message
         });
+    }
+
+    public on(event: EventTypes, handler: (req: any, res: any) => Promise<void>) {
+        this.handlers.set(event, handler);
+    }
+
+    public async middleware(req: any, res: any) {
+        const { type } = req.body.message;
+
+        const handler = this.handlers.get(type);
+
+        if (!handler) {
+            throw new Error(`No handler provided for type ${ type }`);
+        }
+
+        await handler(req, res);
     }
 }
 
