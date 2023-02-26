@@ -81,8 +81,10 @@ for each join. So it depends upon the user. Here you also can use few ways of do
 
 ```typescript
 app.post('/vb/wh', [ bodyParser.json() ], async (req: any, res: any) => {
-    res.send();
-
+    // skip res.send() for this case
+    // because Viber get's the message from the response we send
+    // sendWelcomeMessage takes 'res' as a parameter to send a response
+    
     if (req.body.event === 'conversation_started') {
         return bot.sendWelcomeMessage<TextBody>({
             type: 'text',
