@@ -1,5 +1,22 @@
-Let's take look an examples with express.
-Creating a bot instance as ease as it is: 
+# About
+
+Simple package that makes requests to Viber.
+
+Package works only with 'express' server. Keep in mind, that you should use `body-parser` to parse body from the Viber.
+Package is not configured to use it, as there is no any server under the hood.
+
+Be careful about calling `res.send()`. Viber waits few seconds to get response on his request.
+When you respond to Viber with 200, that means you got the message and will process it. Viber does not responsible for your
+operations to be valid. If you forget to send 200 to the Viber, the message will be sent again in a few seconds, not once. You'll get
+duplicate of the original message for a few times.
+
+Also, be aware that package does NOT make any validations, described by the Viber API documentation.
+You have to make all the validations by yourself. Package only makes requests and return an error, if such occurs.
+
+
+# Usage
+
+## Creating
 ```typescript
 const bot = new ViberBot({
     token: 'your_token_here',
@@ -8,27 +25,27 @@ const bot = new ViberBot({
 });
 ```
 
-To set webhook:
+
+
+## Setting Webhook
 ```typescript
-bot.setWebhook('https://example.com/viber/webhook')
+await bot.setWebhook('https://example.com/viber/webhook')
 ```
 
-Then there are few ways of using the bot.
-1. Manually get the message from the route you provided to Viber, parse, do whatever you need and then call 
-method to send the message.
-2. Provide handlers for any type of message and then set a call middleware for a callback.
 
 
-## 1. Using methods manually
+## Handler
+
+### Manually
+
+Take a look, that we respond to a Viber first, then we make our own logic.
+
 ```typescript
-app.post('/vb/wh', [bodyParser.json()], async (req: any, res: any) => {
+app.post('/vb/wh', async (req: any, res: any) => {
     res.send();
-    /*
-        Here you can implement any logic you want
-        Make queries into database
-        Call any other services
-        Whatever
-    */
+    
+    // your code
+    
     if (req.body.event === 'message') {
         await bot.sendMessage<TextBody>({
             receiver: req.body.message.receiver,
@@ -38,16 +55,18 @@ app.post('/vb/wh', [bodyParser.json()], async (req: any, res: any) => {
     }
 });
 ```
-Be sure to call `res.send()`. By doing that you'll tell the Viber, that you got the message, not processed it. 
-In case Viber doesn't get the response in a few seconds, it will send the same to you again. That can cause issues. 
-So be sure to give response to Viber as fast as possible. Keep tracking what events are coming to your handler.
 
-## 2. Using webhook
 
-At first let's define all the handlers for our messages:
+
+### Via Webhook
+
+At first let's define a handler for a messages, that are market with `message` type.
 
 ```typescript
 bot.on('message', async (req) => {
+    
+    // your code
+    
     await bot.sendMessage<TextBody>({
             receiver: req.body.sender.id,
             type: 'text',
@@ -57,14 +76,19 @@ bot.on('message', async (req) => {
 ```
 Right after that let's set bot middleware to our path:
 ```typescript
-app.post('/vb/wh', [bodyParser.json()], bot.middleware);
+app.post('/vb/wh', bot.middleware);
 ```
 
-## Getting Bot info:
+
+
+## Getting Bot Info
 ```typescript
 const data = await bot.getBotInfo()
-// Process data as you need to
+
+//  your code
+
 ```
+
 
 
 ## Notifications
@@ -73,17 +97,15 @@ Furthermore, you can make broadcasts (max 500 users per each broadcast):
 const failedMessages = bot.broadcast(data)
 ```
 
-## Welcome message
-Whenever user joins the bot, Viber allows to send a message. As far as user is not subscribed yet, we can send only one message
-for each join. So it depends upon the user. Here you also can use few ways of doing it:
 
-### 1. Using manually
 
+## Welcome Message
+
+### Manually
 ```typescript
-app.post('/vb/wh', [ bodyParser.json() ], async (req: any, res: any) => {
-    // skip res.send() for this case
-    // because Viber get's the message from the response we send
-    // sendWelcomeMessage takes 'res' as a parameter to send a response
+app.post('/vb/wh', async (req: any, res: any) => {
+    
+    // your code
     
     if (req.body.event === 'conversation_started') {
         return bot.sendWelcomeMessage<TextBody>({
@@ -94,16 +116,19 @@ app.post('/vb/wh', [ bodyParser.json() ], async (req: any, res: any) => {
 });
 ```
 
-### 2. Using via webhook
 
+
+### Via Webhook
 ```typescript
 const mw = bot.welcomeMessageMiddleware<TextBody>({
     type: 'text',
     text: 'heh!'
 });
 
-app.post('/vb/wh', [ bodyParser.json(), mw ], async (req: any, res: any) => {
+app.post('/vb/wh', [mw], async (req: any, res: any) => {
     res.send();
-    // logic here
+
+    // your code
+
 });
 ```
