@@ -29,7 +29,7 @@ const bot = new ViberBot({
 
 ## Setting Webhook
 ```typescript
-await bot.setWebhook('https://example.com/viber/webhook')
+await bot.setWebhook('https://example.com/vb/wh')
 ```
 
 
@@ -50,7 +50,7 @@ app.post('/vb/wh', async (req: any, res: any) => {
         await bot.sendMessage<TextBody>({
             receiver: req.body.receiver,
             type: 'text',
-            text: 'asd'
+            text: 'Hello, user!'
         });
     }
 });
@@ -70,7 +70,7 @@ bot.on('message', async (req) => {
     await bot.sendMessage<TextBody>({
             receiver: req.body.sender.id,
             type: 'text',
-            text: 'asd'
+            text: 'Hello, user!'
         });
 });
 ```
@@ -122,7 +122,7 @@ app.post('/vb/wh', async (req: any, res: any) => {
 ```typescript
 const mw = bot.welcomeMessageMiddleware<TextBody>({
     type: 'text',
-    text: 'heh!'
+    text: 'Hello, user!'
 });
 
 app.post('/vb/wh', [mw], async (req: any, res: any) => {
