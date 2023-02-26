@@ -1,8 +1,7 @@
 import { HEX, ImageMime, StringUrl, Range, HTMLString } from './UtilTypes';
 import { EventTypes, MessageType } from './Constants';
-import { MessageRequest } from './Requests';
 
-export interface MessageRequestShared {
+export interface ViberApiMessageShared {
     receiver: string;
     type: MessageType;
     sender: {
@@ -13,6 +12,11 @@ export interface MessageRequestShared {
     min_api_version?: string;
     keyboard?: Keyboard;
 }
+
+type MessageOptionalFields = Partial<Pick<ViberApiMessageShared, 'tracking_data' | 'min_api_version' | 'keyboard' | 'sender'>>
+type MessageRequiredFields = Pick<ViberApiMessageShared, 'receiver' | 'type'>;
+
+export type MessageSharedBody = MessageOptionalFields & MessageRequiredFields;
 
 export type Image = `${StringUrl}${ImageMime}`;
 
@@ -29,30 +33,30 @@ export interface Keyboard {
     Buttons: Button[];
 
     BgColor?: HEX;
-    DefaultHeight?: boolean; // [false]
+    DefaultHeight?: boolean;
     CustomDefaultHeight?: Range<40, 71>;
-    HeightScale?: number; // [100]
-    ButtonsGroupColumns?: Range<1, 7>; // [6]
-    ButtonsGroupRows?: Range<1, 8>; // [7 for Carousel] | [2 for Keyboard]
-    InputFieldState?: 'regular' | 'minimized' | 'hidden'; // 'regular
+    HeightScale?: number;
+    ButtonsGroupColumns?: Range<1, 7>;
+    ButtonsGroupRows?: Range<1, 8>;
+    InputFieldState?: 'regular' | 'minimized' | 'hidden';
     FavoritesMetadata?: {}; // TODO: describe: https://developers.viber.com/docs/tools/keyboards/#favoritesMetadata
 }
 
 export interface Button {
     Text?: string | HTMLString;
-    Rows?: Range<1, 7>; // [1-2] / [1-7 for Rich Media]
-    Columns?: Range<1, 7>; // [6]
-    ActionType?: 'reply' | 'open-url' | 'location-picker' | 'share-phone' | 'none'; // [reply]
+    Rows?: Range<1, 7>;
+    Columns?: Range<1, 7>;
+    ActionType?: 'reply' | 'open-url' | 'location-picker' | 'share-phone' | 'none';
     ActionBody?: 'text' | StringUrl;
     BgColor?: HEX;
     Image?: StringUrl;
 
-    Silent?: boolean; // false
-    BgMediaType?: 'picture' | 'gif'; //[picture]
+    Silent?: boolean;
+    BgMediaType?: 'picture' | 'gif';
     BgMedia?: StringUrl;
     BgMediaScaleType?: 'crop' | 'fill' | 'fit';
     ImageScaleType?: 'crop' | 'fill' | 'fit';
-    BgLoop?: boolean; //[true]
+    BgLoop?: boolean;
 
     // TODO: finish
 }
@@ -88,5 +92,17 @@ export interface ConversationStartedEvent extends EventShared {
 export interface MessageEvent extends EventShared {
     event: 'message';
     sender: UserProfile;
-    message: MessageRequest;
+    message: MessageSharedBody;
+}
+
+export type SetWebhookOptions = {
+    event_types?: EventTypes[];
+    send_name?: boolean;
+    send_photo?: boolean;
+}
+
+export type ViberBotOptions = {
+    token: string;
+    name: string;
+    image: StringUrl;
 }

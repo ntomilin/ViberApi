@@ -34,7 +34,6 @@ type EventTypes = 'subscribed' | 'unsubscribed' | 'conversation_started' | 'deli
 
 type MessageType = 'text' | 'picture' | 'video' | 'file' | 'location' | 'contact' | 'sticker' | 'carousel content' | 'url';
 
-
 export {
     ErrorCodes,
     EventTypes,

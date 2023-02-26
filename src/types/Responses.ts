@@ -12,7 +12,7 @@ export interface WebhookResponse extends SharedResponseFields {
 
 export interface MessageResponse extends SharedResponseFields {
     message_token: string;
-    billing_status: Enumerate<6>;// 1..5
+    billing_status: Enumerate<6>;
     chat_hostname: string;
 }
 

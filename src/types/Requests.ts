@@ -1,5 +1,5 @@
 import { EventTypes } from './Constants';
-import { Button, Image, MessageRequestShared } from './Objects';
+import { Button, Image, MessageSharedBody } from './Objects';
 import { HEX, StringUrl, Range } from './UtilTypes';
 
 export interface WebhookRequest {
@@ -9,20 +9,19 @@ export interface WebhookRequest {
     send_photo: boolean;
 }
 
-
-export interface TextRequest extends MessageRequestShared {
+export interface TextBody extends MessageSharedBody {
     type: 'text';
     text: string;
 }
 
-export interface PictureRequest extends MessageRequestShared {
+export interface PictureBody extends MessageSharedBody {
     type: 'picture';
     text: string;
     media: Image;
     thumbnail?: Image;
 }
 
-export interface VideoRequest extends MessageRequestShared {
+export interface VideoBody extends MessageSharedBody {
     type: 'video';
     media: StringUrl;
     thumbnail: StringUrl;
@@ -30,14 +29,14 @@ export interface VideoRequest extends MessageRequestShared {
     duration?: number;
 }
 
-export interface FileRequest extends MessageRequestShared {
+export interface FileBody extends MessageSharedBody {
     type: 'file';
     media: StringUrl;
     size: number;
     file_name: string;
 }
 
-export interface ContactRequest extends MessageRequestShared {
+export interface ContactBody extends MessageSharedBody {
     type: 'contact';
     contact: {
         name: string;
@@ -45,7 +44,7 @@ export interface ContactRequest extends MessageRequestShared {
     }
 }
 
-export interface LocationRequest extends MessageRequestShared {
+export interface LocationBody extends MessageSharedBody {
     type: 'location';
     location: {
         lat: string;
@@ -53,36 +52,36 @@ export interface LocationRequest extends MessageRequestShared {
     }
 }
 
-export interface UrlRequest extends MessageRequestShared {
+export interface UrlBody extends MessageSharedBody {
     type: 'url';
     media: StringUrl;
 }
 
-export interface StickerRequest extends MessageRequestShared {
+export interface StickerBody extends MessageSharedBody {
     type: 'sticker';
     // https://developers.viber.com/docs/tools/sticker-ids/
     sticker_id: number;
 }
 
-
-export interface RichMediaRequest {
+export interface RichMedia {
     receiver: string;
     type: 'rich_media';
-    min_api_version: number; // 7
+    min_api_version: number;
     rich_media: {
         Type: 'rich_media';
-        ButtonsGroupColumns: Range<1, 7>;// 6;
-        ButtonsGroupRows: Range<1, 8>; // 7
+        ButtonsGroupColumns: Range<1, 7>;
+        ButtonsGroupRows: Range<1, 8>;
         BgColor: HEX;
         Buttons: Button[];
     };
 }
 
 
-export type MessageRequest = TextRequest | PictureRequest | VideoRequest | FileRequest |
-    ContactRequest | LocationRequest | UrlRequest | StickerRequest | RichMediaRequest;
+export type MessageBody = TextBody | PictureBody | VideoBody | FileBody |
+    ContactBody | LocationBody | UrlBody | StickerBody;
 
+export type Message = RichMedia | MessageBody;
 
-export type BroadcastRequest<T extends MessageRequest> = T & {
+export type Broadcast<T extends Message> = T & {
     broadcast_list: string[];
 }

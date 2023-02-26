@@ -1,12 +1,21 @@
 import { post } from './requests';
 import { BroadcastResponse, GetBotInfoResponse, MessageResponse, WebhookResponse } from './types/Responses';
-import { BroadcastRequest, MessageRequest, WebhookRequest } from './types/Requests';
+import { Broadcast, Message, MessageBody, RichMedia, WebhookRequest } from './types/Requests';
+import { SetWebhookOptions, ViberBotOptions } from './types/Objects';
+import { StringUrl } from './types/UtilTypes';
 
-// TODO: sending a welcome message (before user subscribed: https://developers.viber.com/docs/api/rest-bot-api/#sending-a-welcome-message)
 class ViberBot {
     private readonly URL: string = 'https://chatapi.viber.com/pa';
+    private webhookUrl: string = '';
 
-    constructor(private readonly token: string) {
+    private readonly name: string;
+    private readonly image: StringUrl;
+    private readonly token: string;
+
+    constructor(config: ViberBotOptions) {
+        this.name = config.name;
+        this.image = config.image;
+        this.token = config.token;
     }
 
     private getAuthorization() {
@@ -15,17 +24,17 @@ class ViberBot {
         };
     }
 
-    // https://developers.viber.com/docs/api/rest-bot-api/#webhooks
-    public async setWebhook(url: string): Promise<WebhookResponse> {
+    public async setWebhook(url: string, options?: SetWebhookOptions): Promise<WebhookResponse> {
+        this.webhookUrl = url;
         return post<WebhookRequest>(`${ this.URL }/set_webhook`, {
             headers: {
                 ...this.getAuthorization(),
             },
         }, {
             url,
-            send_name: false,
-            send_photo: false,
-            event_types: [
+            send_name: options?.send_name ?? false,
+            send_photo: options?.send_photo ?? false,
+            event_types: options?.event_types ?? [
                 'conversation_started',
                 'subscribed',
                 'unsubscribed',
@@ -34,29 +43,62 @@ class ViberBot {
         });
     }
 
-    // https://developers.viber.com/docs/api/rest-bot-api/#send-message
-    public async sendMessage(body: MessageRequest): Promise<MessageResponse> {
-        return post<MessageRequest>(`${ this.URL }/send_message`, {
+    public async getBotInfo(): Promise<GetBotInfoResponse> {
+        return post(`${ this.URL }/get_account_info`, {
+            headers: {
+                ...this.getAuthorization(),
+            }
+        }, {});
+    }
+
+
+    private buildMessage<T extends MessageBody>(body: T): T {
+        return {
+            sender: {
+                name: this.name,
+                avatar: this.image,
+            },
+            ...body,
+        };
+    }
+
+
+    public async sendMessage<T extends Message>(body: T): Promise<MessageResponse> {
+        let parsedBody =
+            body.type === 'rich_media' ? (body as RichMedia) :
+                this.buildMessage(body) as MessageBody;
+
+        return post<T>(`${ this.URL }/send_message`, {
+            headers: {
+                ...this.getAuthorization(),
+            }
+        }, parsedBody);
+    }
+
+    public async broadcast<T extends Broadcast<Message>>(body: Broadcast<T>): Promise<BroadcastResponse> {
+        return post<Broadcast<T>>(`${ this.URL }/broadcast_message`, {
             headers: {
                 ...this.getAuthorization(),
             }
         }, body);
     }
 
-    public async broadcast<T extends MessageRequest>(body: BroadcastRequest<T>): Promise<BroadcastResponse> {
-        return post<BroadcastRequest<T>>(`${this.URL}/broadcast_message`, {
-            headers: {
-                ...this.getAuthorization(),
+    public welcomeMessageMiddleware<T extends Message>(message: Partial<T>) {
+        return (req: any, res: any, next: any) => {
+            if (req?.body?.event === 'conversation_started') {
+                this.sendWelcomeMessage(message, req, res);
             }
-        }, body)
+            return next();
+        };
     }
 
-    public async getBotInfo(): Promise<GetBotInfoResponse> {
-        return post(`${this.URL}/get_account_info`, {
-            headers: {
-                ...this.getAuthorization(),
-            }
-        }, {});
+    public sendWelcomeMessage<T extends Message>(message: Partial<T>, req: any, res: any) {
+        return res.send({
+            sender: {
+                name: req.body.user.name,
+            },
+            ...message
+        });
     }
 }
 

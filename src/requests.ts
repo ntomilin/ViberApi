@@ -21,7 +21,10 @@ async function makeRequest(options: RequestOptions, requestBody: object) {
             body.push(chunk);
         }
 
-        const onEnd = () => resolve(JSON.parse(Buffer.concat(body).toString()))
+        const onEnd = () => {
+            console.log(body.toString());
+            resolve(JSON.parse(Buffer.concat(body).toString()));
+        }
 
         const req = https.request(options, (res: IncomingMessage) => {
             res.on('data', onData);
